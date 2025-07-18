@@ -1,14 +1,14 @@
 import express from 'express'
-import cors from 'cors'
-import todoRoutes from './routes/clientRoute.js'
+import categoryRouter from './routes/categoryRoute.js'
 
 const app = express()
+app.use(express.json())
 
-app.use(cors())
+// app.use('/', (req, res) => {
+//   return res.json('Welcome to Backend Server.......')
+// })
 
-app.use('/', (req, res) => {
-  res.send('Welcome to Backend Server.......')
-})
+app.use('/categories', categoryRouter)
 
 const PORT = 3000
 
