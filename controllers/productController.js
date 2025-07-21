@@ -144,3 +144,51 @@ export const updateProduct = async (req, res) => {
     return res.status(500).json({ error: error.message })
   }
 }
+
+export const deleteProduct = async (req, res) => {
+  try {
+    await prisma.product.delete({
+      where: {
+        id: parseInt(req.params.id),
+      },
+    })
+
+    return res.status(204).send()
+  } catch (error) {
+    return res.status(500).json({ error: error.message })
+  }
+}
+
+export const getProductsByCategory = async (req, res) => {
+  try {
+    const categoryId = Number(req.params.categoryId)
+    if (!(await prisma.category.findUnique({ where: { id: categoryId } }))) {
+      return res.status(404).json({ error: 'Category id not found' })
+    }
+
+    const products = await prisma.product.findMany({
+      where: {
+        categoryId: categoryId,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      omit: {
+        categoryId: true,
+      },
+
+      orderBy: {
+        name: 'asc',
+      },
+    })
+
+    return res.status(200).json(products)
+  } catch (error) {
+    return res.status(500).json({ error: error.message })
+  }
+}
