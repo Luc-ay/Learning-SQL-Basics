@@ -1,5 +1,6 @@
 import express from 'express'
 import categoryRouter from './routes/categoryRoute.js'
+import productRouter from './routes/productRoute.js'
 
 const app = express()
 app.use(express.json())
@@ -9,6 +10,7 @@ app.use(express.json())
 // })
 
 app.use('/categories', categoryRouter)
+app.use('/products', productRouter)
 
 const PORT = 3000
 
