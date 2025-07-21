@@ -96,3 +96,51 @@ export const getProductById = async (req, res) => {
     return res.status(500).json({ error: error.message })
   }
 }
+
+export const updateProduct = async (req, res) => {
+  try {
+    if (req.body.name !== undefined && req.body.name.trim() === '') {
+      return res.status(422).json({ error: 'Name cannot be empty' })
+    }
+
+    if (
+      req.body.price !== undefined &&
+      (typeof req.body.price !== 'number' || req.body.price < 0)
+    ) {
+      return res.status(422).json({ error: 'Price must be greater than 0' })
+    }
+    if (
+      req.body.categoryId !== undefined &&
+      !(await prisma.category.findUnique({
+        where: { id: req.body.categoryId },
+      }))
+    ) {
+      return res.status(404).json({ error: 'Category not found' })
+    }
+
+    const updatedProduct = await prisma.product.update({
+      data: req.body,
+      where: {
+        id: parseInt(req.params.id),
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      omit: {
+        categoryId: true,
+      },
+    })
+
+    return res.status(200).json(updatedProduct)
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Products not found' })
+    }
+    return res.status(500).json({ error: error.message })
+  }
+}
